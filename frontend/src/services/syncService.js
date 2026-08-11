@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from '../api/axios';
 import { deleteOfflineTransaction } from './offlineService';
 
 export const syncOfflineTransactions = async (pendingTransactions, token) => {
@@ -6,8 +6,8 @@ export const syncOfflineTransactions = async (pendingTransactions, token) => {
 
   for (const tx of pendingTransactions) {
     try {
-      const response = await axios.post(
-        'http://localhost:8080/api/transactions',
+      const response = await api.post(
+        '/api/transactions',
         {
           receiverPhone: tx.receiverPhone,
           amount: tx.amount,

@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import {
-  User,
   Shield,
   Bell,
   HelpCircle,

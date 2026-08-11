@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, Search, Loader2, User } from 'lucide-react';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+import api from '../api/axios';
 import { v4 as uuidv4 } from 'uuid';
 import AppHeader from '../components/layout/AppHeader';
 import PageTransition from '../components/ui/PageTransition';
@@ -213,8 +213,8 @@ function SendMoney() {
 
     try {
       if (isOnline) {
-        await axios.post(
-          'http://localhost:8080/api/transactions',
+        await api.post(
+          '/api/transactions',
           { receiverPhone: phone, amount: amountNum, nonce },
           { headers: { Authorization: `Bearer ${token}` } }
         );

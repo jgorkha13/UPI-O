@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import BottomNav from './BottomNav';
+import InstallPWA from '../ui/InstallPWA';
 
 const HIDE_NAV = ['/send', '/add-money', '/services'];
 
@@ -10,6 +11,7 @@ export default function AppShell({ children }) {
   return (
     <div className="min-h-screen bg-bg">
       <div className="max-w-lg mx-auto min-h-screen relative">
+        <InstallPWA />
         {children}
         {showNav && <BottomNav />}
         {showNav && <div className="h-20" />}
