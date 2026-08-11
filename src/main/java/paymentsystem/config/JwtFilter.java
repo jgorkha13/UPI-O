@@ -5,14 +5,16 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -21,46 +23,58 @@ public class JwtFilter extends OncePerRequestFilter {
     private JwtUtil jwtUtil;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
+    protected void doFilterInternal(
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
-        // Get the Authorization header
-        String authHeader = request.getHeader("Authorization");
+        final String authHeader = request.getHeader("Authorization");
 
-        String token = null;
-        String phone = null;
+        System.out.println("=== JWT FILTER ===");
+        System.out.println("Request URI: " + request.getRequestURI());
+      //  System.out.println("Auth Header: " + authHeader);
 
-        // Check if header starts with "Bearer "
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7); // Remove "Bearer " prefix
-            phone = jwtUtil.extractPhone(token);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("No Bearer token found");
+            filterChain.doFilter(request, response);
+            return;
         }
 
-        // If phone found and no existing authentication
-        if (phone != null && SecurityContextHolder.getContext()
-                .getAuthentication() == null) {
+        final String token = authHeader.substring(7);
+       // System.out.println("Token extracted: " + token.substring(0, Math.min(token.length(), 20)) + "...");
 
-            // Validate token
-            if (jwtUtil.isTokenValid(token)) {
+        try {
+            final String phone = jwtUtil.extractPhone(token);
+            System.out.println("Phone extracted: " + phone);
 
-                // Create authentication object
+            boolean isValid = jwtUtil.isTokenValid(token);
+            System.out.println("Token valid: " + isValid);
+
+            if (phone != null && isValid &&
+                    SecurityContextHolder.getContext().getAuthentication() == null) {
+
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
-                                phone, null, new ArrayList<>());
+                                phone,
+                                null,
+                                Collections.singletonList(
+                                        new SimpleGrantedAuthority("ROLE_USER"))
+                        );
 
                 authToken.setDetails(
                         new WebAuthenticationDetailsSource()
-                                .buildDetails(request));
+                                .buildDetails(request)
+                );
 
-                // Tell Spring Security this user is authenticated
-                SecurityContextHolder.getContext()
-                        .setAuthentication(authToken);
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+                System.out.println("Authentication set for: " + phone);
             }
+        } catch (Exception e) {
+            System.out.println("JWT Exception: " + e.getMessage());
+            e.printStackTrace();
         }
 
-        // Continue to next filter or controller
         filterChain.doFilter(request, response);
     }
 }

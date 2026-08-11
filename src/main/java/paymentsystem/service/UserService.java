@@ -3,12 +3,13 @@ package paymentsystem.service;
 import paymentsystem.dto.LoginRequest;
 import paymentsystem.dto.RegisterRequest;
 import paymentsystem.model.User;
-import paymentsystem.model.Wallet;
 import paymentsystem.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class UserService {
@@ -53,5 +54,16 @@ public class UserService {
         }
 
         return user;
+    }
+
+    public Map<String, Object> lookupByPhone(String phone) {
+        User user = userRepository.findByPhone(phone)
+                .orElseThrow(() -> new RuntimeException("User not found with this number"));
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("name", user.getName());
+        response.put("phone", user.getPhone());
+        response.put("upiId", user.getPhone() + "@upio");
+        return response;
     }
 }

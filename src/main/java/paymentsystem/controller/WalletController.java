@@ -1,12 +1,12 @@
 package paymentsystem.controller;
-
+import jakarta.validation.Valid;
+import paymentsystem.dto.AddMoneyRequest;
 import paymentsystem.model.Wallet;
 import paymentsystem.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,12 +40,11 @@ public class WalletController {
     @PostMapping("/add")
     public ResponseEntity<Map<String, Object>> addMoney(
             Authentication authentication,
-            @RequestBody Map<String, BigDecimal> request) {
+            @Valid @RequestBody AddMoneyRequest request) {
 
         String phone = authentication.getName();
-        BigDecimal amount = request.get("amount");
 
-        Wallet wallet = walletService.addMoney(phone, amount);
+        Wallet wallet = walletService.addMoney(phone, request.getAmount());
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Money added successfully");

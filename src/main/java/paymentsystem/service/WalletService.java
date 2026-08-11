@@ -46,6 +46,7 @@ public class WalletService {
     public Wallet addMoney(String phone, BigDecimal amount) {
         Wallet wallet = getWalletByPhone(phone);
         wallet.setBalance(wallet.getBalance().add(amount));
+        wallet.setLastSyncAt(java.time.LocalDateTime.now());
         return walletRepository.save(wallet);
     }
 }
