@@ -2,6 +2,17 @@
 
 Simulated UPI-style wallet with offline payment queue, nonce-based sync, and ₹2,000 offline spending cap.
 
+## Live demo
+
+| | URL |
+|---|---|
+| **App (share this)** | **[https://upi-o-coral.vercel.app](https://upi-o-coral.vercel.app)** |
+| Backend API | https://upi-o.onrender.com |
+
+Open the app link on any phone or laptop → **Create account** → log in. (Accounts from local dev are separate from the live database.)
+
+> **Note:** Backend runs on Render free tier — first request after idle may take ~30–60 seconds to wake up.
+
 ## Stack
 
 - **Backend:** Spring Boot 4, PostgreSQL, JWT
@@ -72,10 +83,10 @@ Runs on **http://localhost:3000**
 | `SPRING_DATASOURCE_USERNAME` | from provider |
 | `SPRING_DATASOURCE_PASSWORD` | from provider |
 | `JWT_SECRET` | long random string |
-| `FRONTEND_URL` | `https://your-app.vercel.app` |
+| `FRONTEND_URL` | `https://upi-o-coral.vercel.app` |
 | `PORT` | usually set automatically |
 
-Copy your backend URL, e.g. `https://upi-o-api.onrender.com`
+Copy your backend URL, e.g. `https://upi-o.onrender.com`
 
 ### 2. Frontend (Vercel / Netlify)
 
@@ -86,7 +97,7 @@ Copy your backend URL, e.g. `https://upi-o-api.onrender.com`
 
 | Variable | Value |
 |---|---|
-| `REACT_APP_API_URL` | your backend URL (no trailing slash) |
+| `REACT_APP_API_URL` | `https://upi-o.onrender.com` (no trailing slash) |
 
 5. Redeploy after backend `FRONTEND_URL` matches your frontend URL.
 
