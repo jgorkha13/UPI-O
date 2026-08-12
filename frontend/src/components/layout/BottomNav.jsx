@@ -10,7 +10,10 @@ const TABS = [
 
 export default function BottomNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-100 shadow-nav">
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-40 bg-bg-secondary border-t shadow-nav"
+      style={{ borderColor: 'var(--color-border)' }}
+    >
       <div className="max-w-lg mx-auto flex items-end justify-around px-2 pt-2 pb-3">
         {TABS.map(({ to, icon: Icon, label, center }) =>
           center ? (

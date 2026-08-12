@@ -1,19 +1,20 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         bg: {
-          DEFAULT: '#f4f6fb',
-          secondary: '#ffffff',
-          tertiary: '#eef1f8',
+          DEFAULT: 'var(--color-bg)',
+          secondary: 'var(--color-bg-secondary)',
+          tertiary: 'var(--color-bg-tertiary)',
         },
         brand: {
           DEFAULT: '#5f259f',
           dark: '#4a1d7a',
           light: '#7b3fbf',
-          soft: '#f3ebff',
+          soft: 'var(--color-brand-soft)',
         },
         accent: {
           DEFAULT: '#5f259f',
@@ -24,8 +25,8 @@ module.exports = {
         danger: '#e53935',
         warning: '#f59e0b',
         text: {
-          primary: '#1a1a2e',
-          secondary: '#64748b',
+          primary: 'var(--color-text-primary)',
+          secondary: 'var(--color-text-secondary)',
         },
       },
       fontFamily: {

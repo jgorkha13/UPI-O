@@ -145,14 +145,14 @@ function Dashboard() {
               <button
                 type="button"
                 onClick={() => fetchData(true)}
-                className="p-1.5 rounded-lg text-text-secondary hover:bg-gray-100"
+                className="p-1.5 rounded-lg text-text-secondary hover:bg-bg-tertiary"
               >
                 <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               </button>
               <button
                 type="button"
                 onClick={() => setHideBalance(!hideBalance)}
-                className="p-1.5 rounded-lg text-text-secondary hover:bg-gray-100"
+                className="p-1.5 rounded-lg text-text-secondary hover:bg-bg-tertiary"
               >
                 {hideBalance ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -162,7 +162,7 @@ function Dashboard() {
             {hideBalance ? '₹ ••••' : <>₹ <Counter value={wallet?.balance ?? 0} /></>}
           </p>
           <p className="text-xs text-text-secondary mt-1">Total money in your wallet</p>
-          <div className="mt-4 pt-4 border-t border-gray-100 space-y-3">
+          <div className="mt-4 pt-4 border-t space-y-3" style={{ borderColor: 'var(--color-border)' }}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-text-primary flex items-center gap-1.5">
@@ -190,7 +190,7 @@ function Dashboard() {
               per payment without internet (limited by balance & offline cap).
             </p>
           </div>
-          <p className="text-[10px] text-text-secondary mt-3 pt-3 border-t border-gray-100">
+          <p className="text-[10px] text-text-secondary mt-3 pt-3 border-t" style={{ borderColor: 'var(--color-border)' }}>
             Last updated: {formatRelativeTime(wallet?.lastSyncAt)}
           </p>
         </motion.div>

@@ -32,7 +32,7 @@ function StepBar({ step }) {
               className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
                 i <= step
                   ? 'bg-brand text-white shadow-glow-btn'
-                  : 'bg-white border border-gray-200 text-text-secondary'
+                  : 'bg-bg-secondary border text-text-secondary'
               }`}
             >
               {i + 1}
@@ -276,7 +276,7 @@ function SendMoney() {
             )}
 
             {searchQuery && filteredRecent.length > 0 && (
-              <div className="mb-4 rounded-xl border border-gray-100 bg-white overflow-hidden">
+              <div className="mb-4 rounded-xl border bg-bg-secondary overflow-hidden" style={{ borderColor: 'var(--color-border)' }}>
                 {filteredRecent.map((r) => (
                   <button
                     key={r.phone}
@@ -398,14 +398,14 @@ function SendMoney() {
                   className={`w-20 py-2.5 rounded-md text-sm font-semibold border transition-all duration-200 ${
                     amount === String(q)
                       ? 'bg-brand/10 border-brand text-brand'
-                      : 'bg-white border-gray-200 text-text-secondary hover:border-brand/30'
+                      : 'bg-bg-secondary border text-text-secondary hover:border-brand/30'
                   }`}
                 >
                   ₹{q}
                 </button>
               ))}
             </div>
-            <div className="mt-3 p-3 rounded-xl bg-gray-50 border border-gray-100 space-y-2 text-xs">
+            <div className="mt-3 p-3 rounded-xl bg-bg-tertiary border space-y-2 text-xs" style={{ borderColor: 'var(--color-border)' }}>
               {isOnline ? (
                 <div className="flex justify-between">
                   <span className="text-text-secondary">Wallet balance</span>

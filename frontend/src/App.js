@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { OfflineProvider } from './context/OfflineContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { AnimatePresence } from 'framer-motion';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -35,14 +36,28 @@ function AnimatedRoutes() {
   );
 }
 
+function ThemedToast() {
+  const { isDark } = useTheme();
+  return (
+    <ToastContainer
+      position="top-center"
+      autoClose={4000}
+      hideProgressBar={false}
+      theme={isDark ? 'dark' : 'light'}
+    />
+  );
+}
+
 function App() {
   return (
-    <OfflineProvider>
-      <BrowserRouter>
-        <ToastContainer position="top-center" autoClose={4000} hideProgressBar={false} theme="light" />
-        <AnimatedRoutes />
-      </BrowserRouter>
-    </OfflineProvider>
+    <ThemeProvider>
+      <OfflineProvider>
+        <BrowserRouter>
+          <ThemedToast />
+          <AnimatedRoutes />
+        </BrowserRouter>
+      </OfflineProvider>
+    </ThemeProvider>
   );
 }
 

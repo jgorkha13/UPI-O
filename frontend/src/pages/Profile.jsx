@@ -13,6 +13,7 @@ import {
 import { toast } from 'react-toastify';
 import AppHeader from '../components/layout/AppHeader';
 import Avatar from '../components/ui/Avatar';
+import ThemeToggle from '../components/ui/ThemeToggle';
 
 const MENU = [
   { icon: Wallet, label: 'My Wallet', sub: 'Balance & limits', action: 'wallet' },
@@ -61,7 +62,10 @@ export default function Profile() {
               </div>
             </div>
           </div>
-          <div className="px-5 py-4 flex items-center justify-between border-t border-gray-100">
+          <div
+            className="px-5 py-4 flex items-center justify-between border-t"
+            style={{ borderColor: 'var(--color-border)' }}
+          >
             <div>
               <p className="text-xs text-text-secondary font-medium">UPI ID</p>
               <p className="text-sm font-bold text-brand mt-0.5">{upiId}</p>
@@ -86,14 +90,21 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* Appearance */}
+        <div className="enterprise-card !p-0 overflow-hidden">
+          <div className="px-5 py-4">
+            <ThemeToggle />
+          </div>
+        </div>
+
         {/* Menu */}
-        <div className="enterprise-card !p-0 divide-y divide-gray-100">
+        <div className="enterprise-card !p-0 overflow-hidden [&>button:not(:first-child)]:border-t [&>button]:border-[var(--color-border)]">
           {MENU.map(({ icon: Icon, label, sub, action }) => (
             <button
               key={label}
               type="button"
               onClick={() => handleMenu(action)}
-              className="w-full flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors text-left"
+              className="w-full flex items-center gap-4 px-5 py-4 hover:bg-bg-tertiary transition-colors text-left"
             >
               <div className="w-10 h-10 rounded-xl bg-brand-soft flex items-center justify-center shrink-0">
                 <Icon className="w-5 h-5 text-brand" />

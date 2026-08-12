@@ -3,6 +3,32 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-bg: #f4f6fb;
+    --color-bg-secondary: #ffffff;
+    --color-bg-tertiary: #eef1f8;
+    --color-text-primary: #1a1a2e;
+    --color-text-secondary: #64748b;
+    --color-brand-soft: #f3ebff;
+    --color-border: #f3f4f6;
+    --color-input-bg: #ffffff;
+    --color-toast-bg: #ffffff;
+    --color-toast-text: #1a1a2e;
+  }
+
+  .dark {
+    --color-bg: #0f1117;
+    --color-bg-secondary: #1a1d27;
+    --color-bg-tertiary: #252936;
+    --color-text-primary: #f1f5f9;
+    --color-text-secondary: #94a3b8;
+    --color-brand-soft: #2a1f3d;
+    --color-border: #2d3344;
+    --color-input-bg: #1a1d27;
+    --color-toast-bg: #1a1d27;
+    --color-toast-text: #f1f5f9;
+  }
+
   * {
     @apply box-border;
   }
@@ -14,6 +40,7 @@
   body {
     @apply m-0 font-sans antialiased bg-bg text-text-primary;
     line-height: 1.5;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   h1, h2, h3, h4 {
@@ -24,8 +51,8 @@
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
-    -webkit-text-fill-color: #1a1a2e;
+    -webkit-box-shadow: 0 0 0 1000px var(--color-input-bg) inset;
+    -webkit-text-fill-color: var(--color-text-primary);
     caret-color: #5f259f;
     transition: background-color 5000s ease-in-out 0s;
   }
@@ -33,9 +60,9 @@
 
 @layer components {
   .enterprise-card {
-    @apply bg-bg-secondary border border-gray-100
-           rounded-2xl p-5 shadow-card
+    @apply bg-bg-secondary border rounded-2xl p-5 shadow-card
            transition-all duration-300 ease-smooth;
+    border-color: var(--color-border);
   }
 
   .enterprise-card-hover {
@@ -44,10 +71,12 @@
 
   .input-enterprise {
     @apply w-full px-4 py-3.5 text-base text-text-primary
-           bg-white border border-gray-200 rounded-xl
+           border rounded-xl
            placeholder:text-text-secondary outline-none
            transition-all duration-200 ease-smooth
            focus:border-brand focus:shadow-focus-ring;
+    background-color: var(--color-input-bg);
+    border-color: var(--color-border);
   }
 
   .btn-primary-enterprise {
@@ -111,10 +140,14 @@
 }
 
 .Toastify__toast {
-  background: #ffffff !important;
+  background: var(--color-toast-bg) !important;
   border: 1px solid rgba(95, 37, 159, 0.12) !important;
   border-radius: 12px !important;
-  color: #1a1a2e !important;
+  color: var(--color-toast-text) !important;
   font-family: 'Plus Jakarta Sans', Inter, sans-serif !important;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+}
+
+.dark .Toastify__toast-theme--dark {
+  background: var(--color-toast-bg) !important;
 }

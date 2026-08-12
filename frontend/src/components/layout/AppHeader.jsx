@@ -29,8 +29,11 @@ export default function AppHeader({
   return (
     <header
       className={`sticky top-0 z-30 ${
-        light ? 'bg-transparent' : 'bg-white/90 backdrop-blur-xl border-b border-gray-100'
+        light
+          ? 'bg-transparent'
+          : 'bg-bg-secondary/90 backdrop-blur-xl border-b'
       }`}
+      style={light ? undefined : { borderColor: 'var(--color-border)' }}
     >
       <div className="h-14 px-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 min-w-0">
@@ -39,7 +42,7 @@ export default function AppHeader({
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className={`p-2 -ml-2 rounded-xl ${light ? 'text-white hover:bg-white/10' : 'text-text-secondary hover:bg-gray-100'}`}
+                className={`p-2 -ml-2 rounded-xl ${light ? 'text-white hover:bg-white/10' : 'text-text-secondary hover:bg-bg-tertiary'}`}
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
@@ -64,14 +67,14 @@ export default function AppHeader({
           {showSearch && (
             <button
               type="button"
-              className={`p-2 rounded-xl ${light ? 'text-white hover:bg-white/10' : 'text-text-secondary hover:bg-gray-100'}`}
+              className={`p-2 rounded-xl ${light ? 'text-white hover:bg-white/10' : 'text-text-secondary hover:bg-bg-tertiary'}`}
             >
               <Search className="w-5 h-5" />
             </button>
           )}
           <button
             type="button"
-            className={`p-2 rounded-xl relative ${light ? 'text-white hover:bg-white/10' : 'text-text-secondary hover:bg-gray-100'}`}
+            className={`p-2 rounded-xl relative ${light ? 'text-white hover:bg-white/10' : 'text-text-secondary hover:bg-bg-tertiary'}`}
           >
             <Bell className="w-5 h-5" />
             {pendingTransactions.length > 0 && (
@@ -84,7 +87,7 @@ export default function AppHeader({
               type="button"
               onClick={() => setMenuOpen(!menuOpen)}
               className={`flex items-center gap-1.5 pl-1 pr-2 py-1 rounded-xl ${
-                light ? 'hover:bg-white/10' : 'hover:bg-gray-100'
+                light ? 'hover:bg-white/10' : 'hover:bg-bg-tertiary'
               }`}
             >
               <Avatar name={userName} size="sm" />
@@ -95,11 +98,14 @@ export default function AppHeader({
             {menuOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-                <div className="absolute right-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-card border border-gray-100 p-1 z-20">
+                <div
+                  className="absolute right-0 top-full mt-2 w-44 bg-bg-secondary rounded-2xl shadow-card border p-1 z-20"
+                  style={{ borderColor: 'var(--color-border)' }}
+                >
                   <button
                     type="button"
                     onClick={() => { setMenuOpen(false); navigate('/profile'); }}
-                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-text-primary hover:bg-gray-50 rounded-xl"
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-text-primary hover:bg-bg-tertiary rounded-xl"
                   >
                     Profile
                   </button>
