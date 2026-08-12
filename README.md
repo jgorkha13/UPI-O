@@ -1,112 +1,120 @@
-# UPI-O — Offline-First P2P Wallet
+UPI-O
 
-Simulated UPI-style wallet with offline payment queue, nonce-based sync, and ₹2,000 offline spending cap.
+An offline-first peer-to-peer wallet application inspired by UPI. Send and receive payments instantly when online, or queue transactions offline with automatic sync upon reconnection.
 
-## Live demo
+Live Demo
 
-| | URL |
-|---|---|
-| **App (share this)** | **[https://upi-o-coral.vercel.app](https://upi-o-coral.vercel.app)** |
-| Backend API | https://upi-o.onrender.com |
+About
 
-Open the app link on any phone or laptop → **Create account** → log in. (Accounts from local dev are separate from the live database.)
+UPI-O is a full-stack payment wallet application designed to demonstrate modern web technologies and offline-first design patterns. The application enables seamless peer-to-peer transfers with robust offline support, allowing users to initiate transactions regardless of connectivity status.
 
-> **Note:** Backend runs on Render free tier — first request after idle may take ~30–60 seconds to wake up.
+Features
+User Authentication – Secure registration and JWT-based login
+Digital Wallet – Manage balance and view complete transaction history
+P2P Transfers – Send money using recipient phone numbers
+Offline-First – Queue payments offline (capped at Rs. 2,000) and automatically sync when connectivity returns
+Progressive Web App – Installable on mobile and desktop with full PWA capabilities
+Dark & Light Themes – Support for user preference-based theming
+Technology Stack
 
-## Stack
+Backend
 
-- **Backend:** Spring Boot 4, PostgreSQL, JWT
-- **Frontend:** React, Tailwind, PWA (Workbox), IndexedDB offline queue
+Java 21 + Spring Boot 4
+PostgreSQL
+JWT authentication
 
-## PWA & offline (full guide)
+Frontend
 
-See **[docs/PWA_OFFLINE.md](docs/PWA_OFFLINE.md)** for architecture, testing steps, and interview notes.
+React
+Tailwind CSS
+IndexedDB (offline storage)
+Workbox (service workers)
+Getting Started
+Prerequisites
+Java 21 or later
+PostgreSQL 12+
+Node.js 18+ and npm
+Setup Instructions
 
-Quick test with installable offline app:
+1. Database Setup
 
-```bash
-cd frontend
-npm run build
-npm run serve
-```
-
-Visit once **online** (login + add money), then install **UPI-O** from the banner or browser menu. Open offline later — app still loads and can queue payments.
-
-## Local setup
-
-### Prerequisites
-
-- Java 21
-- PostgreSQL
-- Node.js 18+
-
-### Database
-
-```sql
+sql
 CREATE DATABASE payment_db;
 CREATE USER payment_user WITH PASSWORD 'payment123';
 GRANT ALL PRIVILEGES ON DATABASE payment_db TO payment_user;
-```
 
-### Backend
+2. Start Backend
 
-```bash
-export JAVA_HOME=/opt/homebrew/opt/openjdk@21   # adjust for your OS
+bash
 ./mvnw spring-boot:run
-```
 
-Runs on **http://localhost:8080**
+Backend runs at http://localhost:8080
 
-### Frontend
+3. Start Frontend
 
-```bash
+bash
 cd frontend
 npm install
 npm start
-```
 
-Runs on **http://localhost:3000**
+Frontend runs at http://localhost:3000
 
-## Deploy
+Test Offline Mode
+bash
+cd frontend
+npm run build
+npm run serve
+Log in while online
+Disconnect network (DevTools or system settings)
+Send a payment – it queues locally in IndexedDB
+Reconnect to network – transactions sync automatically
 
-### 1. Backend (Render / Railway)
+See docs/PWA_OFFLINE.md for more details.
 
-1. Create a **PostgreSQL** database on the platform.
-2. Create a **Web Service** from this repo (root directory, not `frontend/`).
-3. Build command: `./mvnw clean package -DskipTests`
-4. Start command: `java -jar target/paymentsystem-0.0.1-SNAPSHOT.jar`
-5. Set environment variables:
+Deployment
 
-| Variable | Example |
-|---|---|
-| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://host:5432/dbname` |
-| `SPRING_DATASOURCE_USERNAME` | from provider |
-| `SPRING_DATASOURCE_PASSWORD` | from provider |
-| `JWT_SECRET` | long random string |
-| `FRONTEND_URL` | `https://upi-o-coral.vercel.app` |
-| `PORT` | usually set automatically |
+Frontend: Vercel
+Backend API: Render
+Database: Render PostgreSQL
 
-Copy your backend URL, e.g. `https://upi-o.onrender.com`
+Backend Environment Variables
 
-### 2. Frontend (Vercel / Netlify)
+Set these in your Render dashboard:
 
-1. Import repo, set **root directory** to `frontend`
-2. Build command: `npm run build`
-3. Output directory: `build`
-4. Environment variable:
+SPRING_DATASOURCE_URL – PostgreSQL connection string
+SPRING_DATASOURCE_USERNAME – Database user
+SPRING_DATASOURCE_PASSWORD – Database password
+JWT_SECRET – Secret key (minimum 32 characters)
+FRONTEND_URL – Vercel app URL for CORS
+Frontend Environment Variables
 
-| Variable | Value |
-|---|---|
-| `REACT_APP_API_URL` | `https://upi-o.onrender.com` (no trailing slash) |
+Set in your Vercel project settings:
 
-5. Redeploy after backend `FRONTEND_URL` matches your frontend URL.
+REACT_APP_API_URL – Render backend URL (no trailing slash)
 
-## Offline testing
+Build directory: frontend
 
-**Dev mode (`npm start`):** queue works if you go offline without refreshing — wallet cache + IndexedDB only.
+How It Works
 
-**PWA mode (`npm run build && npm run serve`):** full offline including refresh and cold start after install. See [docs/PWA_OFFLINE.md](docs/PWA_OFFLINE.md).
+Online Mode
 
-## License
+User initiates transfer via phone number
+Request sent directly to backend API
+Transaction processed immediately
 
-MIT
+Offline Mode
+
+Payments queue locally in IndexedDB (Rs. 2,000 limit)
+Stored with timestamp and metadata
+Automatically syncs when connection returns
+License
+
+MIT License – see LICENSE file for details.
+
+Contributing
+
+Contributions welcome! Fork the repository and submit a pull request.
+
+Questions or Issues?
+
+Open an issue on the GitHub repository.
