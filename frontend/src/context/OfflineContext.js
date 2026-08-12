@@ -61,14 +61,21 @@ export const OfflineProvider = ({ children }) => {
       const results = await syncOfflineTransactions(pending, token);
       const synced = results.filter((r) => r.status === 'SUCCESS');
       const failed = results.filter((r) => r.status === 'FAILED');
+      const dropped = results.filter((r) => r.status === 'DROPPED');
 
       await loadPending();
       if (synced.length > 0) {
         await refreshWallet();
         toast.success(`${synced.length} offline transaction(s) synced`);
       }
+      if (dropped.length > 0) {
+        await refreshWallet();
+        toast.error(
+          `${dropped.length} queued payment(s) removed — ${dropped[0].error || 'could not sync'}`
+        );
+      }
       if (failed.length > 0) {
-        toast.error(`${failed.length} transaction(s) failed to sync`);
+        toast.error(`${failed.length} transaction(s) failed to sync — will retry`);
       }
     };
 

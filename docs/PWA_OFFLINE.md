@@ -111,7 +111,9 @@ Turn network on. Pending transactions sync automatically. Dashboard balance upda
 | Send money offline | ✅ Yes (IndexedDB queue) |
 | Sync when online | ✅ Yes |
 | Register new account offline | ❌ No (needs API) |
-| Look up new phone number offline | ⚠️ Only if cached from earlier online lookup |
+| Pay someone **first time** offline (new number) | ✅ Yes — queues; syncs when online if they have UPI-O |
+| Pay someone with no UPI-O account | ❌ Sync fails — they must be registered on the app |
+| Look up name for brand-new number offline | ⚠️ Shows number only; name fills in after sync |
 | First-ever visit with zero prior cache | ❌ Needs one online session first |
 
 This matches how real wallet apps behave: the app must be **installed or cached once** while online.

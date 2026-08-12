@@ -83,7 +83,7 @@ function SendMoney() {
   const step = !phoneValid ? 0 : !amountValid ? 1 : 2;
   const canSend = isOnline
     ? phoneValid && amountValid && recipient && !lookupError
-    : phoneValid && amountValid && !lookupError;
+    : phoneValid && amountValid && recipient && !lookupError;
 
   useEffect(() => {
     const cached = getCachedWallet();
@@ -151,9 +151,12 @@ function SendMoney() {
         setLookupError('');
         setLookupWarning('');
       } else {
+        // First-time pay offline: allow any valid number (metro / new contact scenario)
         setRecipient({ name: `+91 ${phone}`, phone });
         setLookupError('');
-        setLookupWarning('Name not saved offline — will verify when you reconnect');
+        setLookupWarning(
+          'New contact offline — payment will queue. Recipient must have a UPI-O account to receive when you reconnect.'
+        );
       }
       return;
     }
