@@ -84,11 +84,11 @@ function Dashboard() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [isOnline, walletVersion]);
+  }, [isOnline]);
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, [fetchData, walletVersion]);
 
   const getTx = (tx) => {
     const sent = tx.sender?.phone === userPhone;
