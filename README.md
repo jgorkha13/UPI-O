@@ -1,94 +1,389 @@
-
-
-Upi o readme clean · MD
 UPI-O
-An offline-first peer-to-peer wallet application inspired by UPI. Send and receive payments instantly when online, or queue transactions offline with automatic sync upon reconnection.
+
+Offline-first peer-to-peer wallet inspired by UPI
 
 Live Demo
 
-About
-UPI-O is a full-stack payment wallet application designed to demonstrate modern web technologies and offline-first design patterns. The application enables seamless peer-to-peer transfers with robust offline support, allowing users to initiate transactions regardless of connectivity status.
+UPI-O is a full-stack payment wallet that supports instant online transfers and offline payment queuing. When connectivity drops, payments are saved locally and synced automatically once the device is back online.
+
+Live application: https://upi-o-coral.vercel.app
+
+
+
+Table of Contents
+
+
+
+
 
 Features
-User Authentication – Secure registration and JWT-based login
-Digital Wallet – Manage balance and view transaction history
-P2P Transfers – Send money using recipient phone numbers
-Offline-First – Queue payments offline (Rs. 2,000 limit) and sync automatically
-Progressive Web App – Installable on mobile and desktop
-Dark & Light Themes – Support for user preferences
-Technology Stack
+
+
+
+Tech Stack
+
+
+
+Getting Started
+
+
+
+Offline and PWA
+
+
+
+Deployment
+
+
+
+License
+
+
+
+
+
+Features
+
+
+
+
+
+User registration and login with JWT authentication
+
+
+
+Wallet balance management and transaction history
+
+
+
+Peer-to-peer money transfer via phone number
+
+
+
+Offline payment queue with automatic sync
+
+
+
+Nonce-based deduplication to prevent duplicate transactions
+
+
+
+Offline spending limit of Rs. 2,000
+
+
+
+Progressive Web App (installable on mobile and desktop)
+
+
+
+Light and dark theme support
+
+
+
+
+
+Tech Stack
+
+
+
+
+
+
+
+Layer
+
+
+
+Technologies
+
+
+
+
+
 Backend
 
-Java 21 + Spring Boot 4
-PostgreSQL
-JWT authentication
+
+
+Java 21, Spring Boot 4, PostgreSQL, JWT
+
+
+
+
+
 Frontend
 
-React
-Tailwind CSS
-IndexedDB (offline storage)
-Workbox (service workers)
+
+
+React, Tailwind CSS, React Router
+
+
+
+
+
+Offline
+
+
+
+IndexedDB, Service Worker (Workbox)
+
+
+
+
+
+Deployment
+
+
+
+Vercel (frontend), Render (backend and database)
+
+
+
+
+
 Getting Started
+
+
+
 Prerequisites
-Java 21+
-PostgreSQL 12+
-Node.js 18+ and npm
-Database Setup
-sql
+
+
+
+
+
+Java 21
+
+
+
+PostgreSQL
+
+
+
+Node.js 18 or later
+
+
+
+1. Database setup
+
 CREATE DATABASE payment_db;
 CREATE USER payment_user WITH PASSWORD 'payment123';
 GRANT ALL PRIVILEGES ON DATABASE payment_db TO payment_user;
-Start Backend
-bash
-./mvnw spring-boot:run
-Backend runs at http://localhost:8080
 
-Start Frontend
-bash
+Update src/main/resources/application.properties with your local database credentials if needed.
+
+2. Start the backend
+
+From the project root:
+
+./mvnw spring-boot:run
+
+The API will be available at http://localhost:8080.
+
+3. Start the frontend
+
 cd frontend
 npm install
 npm start
-Frontend runs at http://localhost:3000
 
-Test Offline Mode
-bash
+The application will open at http://localhost:3000.
+
+
+
+
+
+Offline and PWA
+
+UPI-O supports three layers of offline functionality:
+
+
+
+
+
+Service worker - caches the app shell for offline loading
+
+
+
+Local storage - caches wallet balance and contact data
+
+
+
+IndexedDB queue - stores pending payments until sync
+
+To test the installable PWA locally:
+
 cd frontend
 npm run build
 npm run serve
-Log in while online
-Disconnect network
-Send a payment (queues locally)
-Reconnect to network (syncs automatically)
+
+Open the app while online, log in, and add funds. Install the app from the browser prompt, then disconnect the network and send a payment to verify offline queuing.
+
+For a detailed architecture guide, see docs/PWA_OFFLINE.md.
+
+
+
+
+
 Deployment
-Frontend: Vercel
-Backend API: Render
-Database: Render PostgreSQL
 
-Backend Env Variables
-SPRING_DATASOURCE_URL – PostgreSQL connection string
-SPRING_DATASOURCE_USERNAME – Database user
-SPRING_DATASOURCE_PASSWORD – Database password
-JWT_SECRET – Secret key (min 32 characters)
-FRONTEND_URL – Vercel app URL
-Frontend Env Variables
-REACT_APP_API_URL – Render backend URL (no trailing slash)
-Build directory: frontend
 
-How It Works
-Online Mode
 
-User initiates transfer via phone number
-Request sent to backend API
-Transaction processed immediately
-Offline Mode
 
-Payments queue in IndexedDB (Rs. 2,000 limit)
-Stored with timestamp and metadata
-Automatically syncs when connection returns
+
+
+
+Component
+
+
+
+Platform
+
+
+
+
+
+Frontend
+
+
+
+Vercel
+
+
+
+
+
+Backend
+
+
+
+Render
+
+
+
+
+
+Database
+
+
+
+Render (PostgreSQL)
+
+Only the frontend URL should be shared with end users. The backend is an internal API and does not serve a web interface.
+
+Backend (Render)
+
+
+
+
+
+
+
+Variable
+
+
+
+Description
+
+
+
+
+
+SPRING_DATASOURCE_URL
+
+
+
+PostgreSQL JDBC connection string
+
+
+
+
+
+SPRING_DATASOURCE_USERNAME
+
+
+
+Database username
+
+
+
+
+
+SPRING_DATASOURCE_PASSWORD
+
+
+
+Database password
+
+
+
+
+
+JWT_SECRET
+
+
+
+Secret key (minimum 32 characters)
+
+
+
+
+
+FRONTEND_URL
+
+
+
+Vercel frontend URL for CORS
+
+Build command: ./mvnw clean package -DskipTests
+Start command: java -jar target/paymentsystem-0.0.1-SNAPSHOT.jar
+
+Frontend (Vercel)
+
+
+
+
+
+
+
+Variable
+
+
+
+Description
+
+
+
+
+
+REACT_APP_API_URL
+
+
+
+Render backend URL (no trailing slash)
+
+Set the root directory to frontend, build command to npm run build, and output directory to build.
+
+
+
+
+
 License
-MIT License
 
-Contributing
-Contributions welcome! Fork and submit a pull request.
+This project is licensed under the MIT License.
 
+
+
+
+
+Author
+
+Jiya Gorkha
+
+
+
+
+
+GitHub: @jgorkha13
+
+
+
+Project: UPI-O
 
