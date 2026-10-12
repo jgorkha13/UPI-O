@@ -9,12 +9,18 @@ import Badge from '../components/ui/Badge';
 import GradientSpinner from '../components/ui/GradientSpinner';
 import { getTransactions } from '../api/transactions';
 import { formatCurrency, formatDateTime, getDateGroup } from '../utils/format';
+import { isRecharge, transactionLabel, transactionSubLabel } from '../utils/transaction';
 
 const FILTERS = ['All', 'Sent', 'Received'];
 
 function TxModal({ tx, userPhone, onClose }) {
-  const sent = tx.sender?.phone === userPhone;
+  const recharge = isRecharge(tx);
+  const sent = tx.sender?.phone === userPhone || recharge;
   const other = sent ? tx.receiver : tx.sender;
+  const title = transactionLabel(tx, { sent, fallbackName: other?.name || 'Unknown' });
+  const subtitle = recharge
+    ? transactionSubLabel(tx, { sent })
+    : `+91 ${other?.phone}`;
 
   return (
     <motion.div
@@ -40,11 +46,13 @@ function TxModal({ tx, userPhone, onClose }) {
         </button>
 
         <div className="flex items-center gap-4 mb-6 pr-8">
-          <Avatar name={other?.name || other?.phone} size="lg" />
+          <Avatar name={recharge ? title : other?.name || other?.phone} size="lg" />
           <div>
-            <p className="font-semibold text-text-primary">{other?.name || 'Unknown'}</p>
-            <p className="text-sm text-text-secondary">+91 {other?.phone}</p>
-            <p className="text-xs text-brand font-medium mt-0.5">{sent ? 'Money Sent' : 'Money Received'}</p>
+            <p className="font-semibold text-text-primary">{title}</p>
+            <p className="text-sm text-text-secondary">{subtitle}</p>
+            <p className="text-xs text-brand font-medium mt-0.5">
+              {recharge ? 'Mobile Recharge' : sent ? 'Money Sent' : 'Money Received'}
+            </p>
           </div>
         </div>
 
@@ -57,7 +65,8 @@ function TxModal({ tx, userPhone, onClose }) {
           {[
             ['Status', <Badge key="s" status={tx.status} />],
             ['Date', formatDateTime(tx.createdAt)],
-            ['Type', tx.isOffline ? 'Offline' : 'Online'],
+            ['Type', recharge ? 'Recharge' : tx.isOffline ? 'Offline' : 'Online'],
+            ...(recharge && tx.planName ? [['Plan', tx.planName]] : []),
             ['Transaction ID', `#${tx.id}`],
           ].map(([label, value]) => (
             <div key={label} className="flex justify-between items-center">
@@ -120,6 +129,8 @@ function TransactionHistory() {
       return (
         other?.name?.toLowerCase().includes(q) ||
         other?.phone?.includes(q) ||
+        tx.operator?.toLowerCase().includes(q) ||
+        tx.beneficiaryPhone?.includes(q) ||
         String(tx.amount).includes(q)
       );
     });
@@ -235,9 +246,12 @@ function TransactionHistory() {
                 </h3>
                 <motion.div variants={staggerContainer} initial="initial" animate="animate" className="space-y-2">
                   {txs.map((tx) => {
-                    const sent = tx.sender?.phone === userPhone;
+                    const sent = tx.sender?.phone === userPhone || isRecharge(tx);
                     const other = sent ? tx.receiver : tx.sender;
-                    const name = other?.name || 'Unknown';
+                    const name = transactionLabel(tx, { sent, fallbackName: other?.name || 'Unknown' });
+                    const line = isRecharge(tx)
+                      ? `Recharge · ${transactionSubLabel(tx, { sent })}`
+                      : `${sent ? 'Paid' : 'Received'} · +91 ${other?.phone}`;
                     return (
                       <motion.button
                         key={tx.id}
@@ -257,9 +271,7 @@ function TransactionHistory() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold truncate">{name}</p>
-                          <p className="text-xs text-text-secondary">
-                            {sent ? 'Paid' : 'Received'} · +91 {other?.phone}
-                          </p>
+                          <p className="text-xs text-text-secondary">{line}</p>
                           <p className="text-[10px] text-text-secondary mt-0.5">{formatDateTime(tx.createdAt)}</p>
                         </div>
                         <div className="flex items-center gap-1 shrink-0">

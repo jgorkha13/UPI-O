@@ -33,6 +33,19 @@ public class Transaction {
     @Column(nullable = false)
     private TransactionStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "txn_type", length = 20)
+    private TransactionType type = TransactionType.TRANSFER;
+
+    @Column(length = 32)
+    private String operator;
+
+    @Column(length = 15)
+    private String beneficiaryPhone;
+
+    @Column(length = 80)
+    private String planName;
+
     @Column(unique = true, nullable = false)
     private String nonce;
 
@@ -54,5 +67,10 @@ public class Transaction {
         PENDING,
         COMPLETED,
         FAILED
+    }
+
+    public enum TransactionType {
+        TRANSFER,
+        RECHARGE
     }
 }

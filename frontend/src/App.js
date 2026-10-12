@@ -13,6 +13,7 @@ import TransactionHistory from './pages/TransactionHistory';
 import Profile from './pages/Profile';
 import ScanPay from './pages/ScanPay';
 import Services from './pages/Services';
+import Recharge from './pages/Recharge';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppShell from './components/layout/AppShell';
 
@@ -30,6 +31,7 @@ function AnimatedRoutes() {
         <Route path="/profile" element={<ProtectedRoute><AppShell><Profile /></AppShell></ProtectedRoute>} />
         <Route path="/scan" element={<ProtectedRoute><AppShell><ScanPay /></AppShell></ProtectedRoute>} />
         <Route path="/services" element={<ProtectedRoute><AppShell><Services /></AppShell></ProtectedRoute>} />
+        <Route path="/recharge" element={<ProtectedRoute><AppShell><Recharge /></AppShell></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </AnimatePresence>

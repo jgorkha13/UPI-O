@@ -2,7 +2,7 @@ import { useLocation } from 'react-router-dom';
 import BottomNav from './BottomNav';
 import InstallPWA from '../ui/InstallPWA';
 
-const HIDE_NAV = ['/send', '/add-money', '/services'];
+const HIDE_NAV = ['/send', '/add-money', '/services', '/recharge'];
 
 export default function AppShell({ children }) {
   const { pathname } = useLocation();

@@ -19,6 +19,7 @@ import { OfflineContext } from '../context/OfflineContext';
 import { getWallet } from '../api/wallet';
 import { getTransactions } from '../api/transactions';
 import { formatCurrency, formatRelativeTime } from '../utils/format';
+import { isRecharge, transactionLabel, transactionSubLabel } from '../utils/transaction';
 import { getCachedWallet, setCachedWallet } from '../utils/walletCache';
 
 function Counter({ value, duration = 500 }) {
@@ -91,9 +92,15 @@ function Dashboard() {
   }, [fetchData, walletVersion]);
 
   const getTx = (tx) => {
-    const sent = tx.sender?.phone === userPhone;
+    const sent = tx.sender?.phone === userPhone || isRecharge(tx);
     const other = sent ? tx.receiver : tx.sender;
-    return { sent, name: other?.name || other?.phone || 'Unknown', amount: tx.amount, time: tx.createdAt };
+    return {
+      sent,
+      name: transactionLabel(tx, { sent, fallbackName: other?.name || other?.phone || 'Unknown' }),
+      sub: isRecharge(tx) ? transactionSubLabel(tx, { sent }) : null,
+      amount: tx.amount,
+      time: tx.createdAt,
+    };
   };
 
   const greeting = () => {
@@ -241,7 +248,7 @@ function Dashboard() {
           ) : (
             <motion.div variants={staggerContainer} initial="initial" animate="animate" className="space-y-2">
               {transactions.map((tx) => {
-                const { sent, name, amount, time } = getTx(tx);
+                const { sent, name, sub, amount, time } = getTx(tx);
                 return (
                   <motion.div
                     key={tx.id}
@@ -252,7 +259,9 @@ function Dashboard() {
                     <Avatar name={name} size="md" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-text-primary truncate">{name}</p>
-                      <p className="text-xs text-text-secondary">{sent ? 'Paid' : 'Received'} · {formatRelativeTime(time)}</p>
+                      <p className="text-xs text-text-secondary">
+                        {sub || (sent ? 'Paid' : 'Received')} · {formatRelativeTime(time)}
+                      </p>
                     </div>
                     <p className={`text-sm font-bold ${sent ? 'text-danger' : 'text-success'}`}>
                       {sent ? '-' : '+'}{formatCurrency(amount)}

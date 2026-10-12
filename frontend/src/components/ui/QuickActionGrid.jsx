@@ -20,7 +20,7 @@ const PRIMARY = [
 ];
 
 const SERVICES = [
-  { label: 'Recharge', icon: Smartphone, color: 'bg-orange-500' },
+  { label: 'Recharge', icon: Smartphone, color: 'bg-orange-500', path: '/recharge' },
   { label: 'Electricity', icon: Zap, color: 'bg-yellow-500' },
   { label: 'DTH', icon: Tv, color: 'bg-red-500' },
   { label: 'Credit Card', icon: CreditCard, color: 'bg-blue-600' },

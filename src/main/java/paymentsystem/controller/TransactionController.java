@@ -1,4 +1,6 @@
 package paymentsystem.controller;
+import jakarta.validation.Valid;
+import paymentsystem.dto.RechargeRequest;
 import paymentsystem.model.Transaction;
 import paymentsystem.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,27 @@ public class TransactionController {
         response.put("message", "Money sent successfully");
         response.put("transactionId", transaction.getId());
         response.put("amount", transaction.getAmount());
+        response.put("status", transaction.getStatus());
+        response.put("nonce", transaction.getNonce());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/recharge")
+    public ResponseEntity<Map<String, Object>> recharge(
+            Authentication authentication,
+            @Valid @RequestBody RechargeRequest request) {
+
+        String phone = authentication.getName();
+        Transaction transaction = transactionService.recharge(phone, request);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Recharge successful");
+        response.put("transactionId", transaction.getId());
+        response.put("amount", transaction.getAmount());
+        response.put("operator", transaction.getOperator());
+        response.put("mobileNumber", transaction.getBeneficiaryPhone());
+        response.put("planName", transaction.getPlanName());
         response.put("status", transaction.getStatus());
         response.put("nonce", transaction.getNonce());
 

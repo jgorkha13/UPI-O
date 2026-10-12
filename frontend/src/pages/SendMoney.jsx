@@ -116,7 +116,8 @@ function SendMoney() {
           const sent = tx.sender?.phone === userPhone;
           const other = sent ? tx.receiver : tx.sender;
           const key = other?.phone;
-          if (key && !seen.has(key) && key !== userPhone) {
+          if (tx.type === 'RECHARGE') continue;
+          if (key && !seen.has(key) && key !== userPhone && key !== '0000000000') {
             seen.add(key);
             const contact = { name: other.name, phone: other.phone };
             saveContact(contact);

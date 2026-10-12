@@ -18,7 +18,7 @@ const CATEGORIES = [
   {
     title: 'Recharge & Bills',
     items: [
-      { icon: Smartphone, label: 'Mobile Recharge', color: 'bg-orange-500' },
+      { icon: Smartphone, label: 'Mobile Recharge', color: 'bg-orange-500', path: '/recharge' },
       { icon: Zap, label: 'Electricity', color: 'bg-yellow-500' },
       { icon: Tv, label: 'DTH', color: 'bg-red-500' },
       { icon: Wifi, label: 'Broadband', color: 'bg-blue-500' },
@@ -59,11 +59,11 @@ export default function Services() {
           <div key={title}>
             <p className="text-sm font-bold text-text-primary mb-3">{title}</p>
             <div className="grid grid-cols-4 gap-3">
-              {items.map(({ icon: Icon, label, color }) => (
+              {items.map(({ icon: Icon, label, color, path }) => (
                 <button
                   key={label}
                   type="button"
-                  onClick={() => toast.info(`${label} — coming soon!`)}
+                  onClick={() => (path ? navigate(path) : toast.info(`${label} — coming soon!`))}
                   className="flex flex-col items-center gap-2 p-2 rounded-2xl hover:bg-white transition-colors"
                 >
                   <div className={`w-12 h-12 rounded-2xl ${color} flex items-center justify-center shadow-card`}>
