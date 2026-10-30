@@ -91,12 +91,14 @@ export default function Recharge() {
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // Bug fix 1: explicitly guard NaN so amountValid is never truthy for empty input
   const mobileValid = /^[6-9]\d{9}$/.test(mobile);
   const amountNum = parseFloat(amount);
-  const amountValid = amountNum >= 1 && amountNum <= 9999;
+  const amountValid = !isNaN(amountNum) && amountNum >= 1 && amountNum <= 9999;
   const canPay = mobileValid && operator && amountValid && amountNum <= Number(balance);
-  const step = !mobileValid || !operator ? 0 : !amountValid ? 1 : 2;
-  const plans = PLANS[operator] || [];
+  // Bug fix 2: step 0 = number entry, step 1 = operator+plan, step 2 = pay
+  const step = !mobileValid ? 0 : !amountValid ? 1 : 2;
+  const plans = useMemo(() => PLANS[operator] || [], [operator]);
 
   useEffect(() => {
     const cached = getCachedWallet();
@@ -141,7 +143,11 @@ export default function Recharge() {
       if (updated) setBalance(Number(updated.balance));
       setShowSuccess(true);
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Recharge failed');
+      // Bug fix 3: handle 409 conflict (optimistic lock / duplicate nonce) gracefully
+      const msg =
+        err.response?.data?.error ||
+        (err.response?.status === 409 ? 'Recharge conflict — please try again' : 'Recharge failed');
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

@@ -34,6 +34,10 @@ public class Wallet {
     @Column
     private LocalDateTime lastSyncAt;
 
+    // Optimistic locking — prevents concurrent double-debit / double-credit
+    @Version
+    private Long version;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 

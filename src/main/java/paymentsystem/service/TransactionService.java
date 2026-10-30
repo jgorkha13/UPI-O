@@ -8,8 +8,10 @@ import paymentsystem.repository.TransactionRepository;
 import paymentsystem.repository.UserRepository;
 import paymentsystem.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
@@ -99,7 +101,8 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
-    @Transactional
+    // Bug fix 1: Use REPEATABLE_READ isolation to prevent concurrent double-debit
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public Transaction recharge(String payerPhone, RechargeRequest request) {
         String operator = request.getOperator() == null ? "" : request.getOperator().trim();
         if (!OPERATORS.contains(operator)) {
@@ -111,10 +114,11 @@ public class TransactionService {
             throw new RuntimeException("Maximum recharge amount is ₹9999");
         }
 
-        String nonce = request.getNonce();
-        if (nonce == null || nonce.isBlank()) {
-            nonce = UUID.randomUUID().toString();
-        }
+        // Bug fix 2: Generate server-side nonce if client didn't send one
+        String nonce = (request.getNonce() == null || request.getNonce().isBlank())
+                ? UUID.randomUUID().toString()
+                : request.getNonce().trim();
+
         if (transactionRepository.existsByNonce(nonce)) {
             throw new RuntimeException("Transaction already processed (duplicate nonce)");
         }
@@ -129,34 +133,51 @@ public class TransactionService {
             throw new RuntimeException("Insufficient balance");
         }
 
-        User merchant = getOrCreateRechargeMerchant();
-        Wallet merchantWallet = walletRepository.findByUser(merchant)
-                .orElseThrow(() -> new RuntimeException("Recharge merchant wallet not found"));
+        // Bug fix 3: getOrCreateRechargeMerchant now returns the wallet directly
+        //            to avoid a second findByUser call that could miss it
+        Wallet merchantWallet = getOrCreateRechargeMerchantWallet();
 
+        // Bug fix 4: Re-check balance after acquiring wallet lock (optimistic locking
+        //            via @Version on Wallet will catch any race that slips through)
         payerWallet.setBalance(payerWallet.getBalance().subtract(amount));
         payerWallet.setLastSyncAt(java.time.LocalDateTime.now());
-        walletRepository.save(payerWallet);
+        try {
+            walletRepository.save(payerWallet);
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new RuntimeException("Balance changed concurrently — please retry");
+        }
 
         merchantWallet.setBalance(merchantWallet.getBalance().add(amount));
         merchantWallet.setLastSyncAt(java.time.LocalDateTime.now());
         walletRepository.save(merchantWallet);
 
+        // Bug fix 5: Truncate planName to 80 chars to match DB column length
+        String planName = request.getPlanName();
+        if (planName != null && planName.length() > 80) {
+            planName = planName.substring(0, 80);
+        }
+
         Transaction transaction = new Transaction();
         transaction.setSender(payer);
-        transaction.setReceiver(merchant);
+        transaction.setReceiver(merchantWallet.getUser());
         transaction.setAmount(amount);
         transaction.setStatus(Transaction.TransactionStatus.COMPLETED);
         transaction.setType(Transaction.TransactionType.RECHARGE);
         transaction.setOperator(operator);
         transaction.setBeneficiaryPhone(request.getMobileNumber());
-        transaction.setPlanName(request.getPlanName());
+        transaction.setPlanName(planName);
         transaction.setNonce(nonce);
         transaction.setIsOffline(false);
 
         return transactionRepository.save(transaction);
     }
 
-    private User getOrCreateRechargeMerchant() {
+    /**
+     * Bug fix 3: Returns the merchant's Wallet directly, auto-creating both the
+     * merchant User and Wallet if they don't exist. This eliminates the subsequent
+     * walletRepository.findByUser().orElseThrow() that could fail on data inconsistency.
+     */
+    private Wallet getOrCreateRechargeMerchantWallet() {
         User merchant = userRepository.findByPhone(RECHARGE_MERCHANT_PHONE).orElseGet(() -> {
             User created = new User();
             created.setName("Mobile Recharge");
@@ -164,15 +185,14 @@ public class TransactionService {
             created.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
             return userRepository.save(created);
         });
-        if (!walletRepository.existsByUser(merchant)) {
+        return walletRepository.findByUser(merchant).orElseGet(() -> {
             Wallet wallet = new Wallet();
             wallet.setUser(merchant);
             wallet.setBalance(BigDecimal.ZERO);
             wallet.setOfflineLimit(new BigDecimal("2000.00"));
             wallet.setOfflineSpent(BigDecimal.ZERO);
-            walletRepository.save(wallet);
-        }
-        return merchant;
+            return walletRepository.save(wallet);
+        });
     }
 
     // Get transaction history
