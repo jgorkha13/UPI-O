@@ -57,15 +57,15 @@ function StepBar({ step }) {
         <div key={label} className="flex items-center">
           <div className="flex flex-col items-center">
             <div
-              className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+              className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-colors ${
                 i <= step
-                  ? 'bg-brand text-white shadow-glow-btn'
-                  : 'bg-bg-secondary border text-text-secondary'
+                  ? 'bg-brand text-white shadow-sm'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700'
               }`}
             >
               {i + 1}
             </div>
-            <span className={`text-xs mt-2 ${i <= step ? 'text-brand' : 'text-text-secondary'}`}>
+            <span className={`text-xs mt-1.5 font-medium ${i <= step ? 'text-brand' : 'text-slate-400'}`}>
               {label}
             </span>
           </div>
@@ -196,10 +196,10 @@ export default function Recharge() {
                   setAmount('');
                   setPlanName('');
                 }}
-                className={`rounded-2xl p-3 text-center border transition-all ${
+                className={`rounded-xl p-3 text-center border transition-all ${
                   operator === op.id
-                    ? 'border-brand bg-brand/10 shadow-glow'
-                    : 'border-gray-100 bg-bg-secondary/40'
+                    ? 'border-brand bg-blue-50/60 dark:bg-blue-950/40 ring-1 ring-brand'
+                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/40 hover:border-slate-300'
                 }`}
               >
                 <div className={`w-8 h-8 mx-auto rounded-xl ${op.color} text-white text-[10px] font-bold flex items-center justify-center mb-1`}>

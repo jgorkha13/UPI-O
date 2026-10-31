@@ -13,10 +13,10 @@ import {
 import { toast } from 'react-toastify';
 
 const PRIMARY = [
-  { label: 'Send', icon: Send, color: 'bg-brand', path: '/send' },
-  { label: 'Add Money', icon: Plus, color: 'bg-success', path: '/add-money' },
-  { label: 'Scan', icon: QrCode, color: 'bg-accent-blue', path: '/scan' },
-  { label: 'Offline Pay', icon: WifiOff, color: 'bg-warning', path: '/send', badge: 'New' },
+  { label: 'Send Money', icon: Send, color: 'bg-blue-600', path: '/send' },
+  { label: 'Add Money', icon: Plus, color: 'bg-slate-700', path: '/add-money' },
+  { label: 'Scan QR', icon: QrCode, color: 'bg-slate-900', path: '/scan' },
+  { label: 'Offline Pay', icon: WifiOff, color: 'bg-amber-600', path: '/send', badge: 'Offline' },
 ];
 
 const SERVICES = [

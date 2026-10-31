@@ -212,10 +212,10 @@ function TransactionHistory() {
               key={f}
               type="button"
               onClick={() => setFilter(f)}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-colors ${
                 filter === f
-                  ? 'bg-brand text-white shadow-glow-btn'
-                  : 'bg-white text-text-secondary border border-gray-100'
+                  ? 'bg-brand text-white shadow-sm'
+                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50'
               }`}
             >
               {f}

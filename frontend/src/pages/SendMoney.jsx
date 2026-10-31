@@ -29,15 +29,15 @@ function StepBar({ step }) {
         <div key={label} className="flex items-center">
           <div className="flex flex-col items-center">
             <div
-              className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+              className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-colors ${
                 i <= step
-                  ? 'bg-brand text-white shadow-glow-btn'
-                  : 'bg-bg-secondary border text-text-secondary'
+                  ? 'bg-brand text-white shadow-sm'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700'
               }`}
             >
               {i + 1}
             </div>
-            <span className={`text-xs mt-2 hidden sm:block ${i <= step ? 'text-brand' : 'text-text-secondary'}`}>
+            <span className={`text-xs mt-1.5 font-medium hidden sm:block ${i <= step ? 'text-brand' : 'text-slate-400'}`}>
               {label}
             </span>
           </div>

@@ -126,23 +126,32 @@ function Dashboard() {
 
   return (
     <PageTransition className="min-h-screen bg-bg">
-      {/* Purple hero header */}
-      <div className="phonepe-hero rounded-b-3xl pb-16 pt-2 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4" />
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
+      {/* Professional banking header */}
+      <div className="bg-slate-900 text-white pb-12 pt-2 border-b border-slate-800">
         <AppHeader showStatus showSearch light />
-        <div className="px-5 mt-2 relative z-10">
-          <p className="text-white/80 text-sm">{greeting()},</p>
-          <p className="text-white text-xl font-bold">{userName.split(' ')[0]} 👋</p>
+        <div className="px-5 mt-3 flex items-center justify-between">
+          <div>
+            <p className="text-slate-400 text-xs font-medium uppercase tracking-wider">{greeting()}</p>
+            <p className="text-white text-lg font-bold">{userName.split(' ')[0]}</p>
+          </div>
+          <div className="text-right">
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+              isOnline ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/60' : 'bg-amber-950/60 text-amber-400 border border-amber-800/60'
+            }`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+              {isOnline ? 'Online mode' : 'Offline mode'}
+            </span>
+          </div>
         </div>
       </div>
 
       {/* Balance card — overlaps hero */}
-      <div className="px-4 -mt-10 relative z-20 space-y-4 pb-4">
+      <div className="px-4 -mt-7 relative z-20 space-y-4 pb-6">
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="enterprise-card shadow-card-hover !p-5"
+          transition={{ duration: 0.2 }}
+          className="enterprise-card !p-5 shadow-sm border border-slate-200 dark:border-slate-800"
         >
           <div className="flex items-center justify-between mb-1">
             <p className="text-xs font-semibold text-text-secondary uppercase tracking-wider">

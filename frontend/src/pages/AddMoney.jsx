@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import AppHeader from '../components/layout/AppHeader';
 import PageTransition from '../components/ui/PageTransition';
@@ -52,20 +52,18 @@ function AddMoney() {
             <p className="text-sm font-semibold text-text-primary mb-4">Quick add</p>
             <div className="grid grid-cols-2 gap-3">
               {QUICK.map((q) => (
-                <motion.button
+                <button
                   key={q}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                   type="button"
                   onClick={() => setAmount(String(q))}
-                  className={`py-4 rounded-lg font-semibold border transition-all duration-300 ${
+                  className={`py-3.5 rounded-lg text-sm font-semibold border transition-colors ${
                     amount === String(q)
-                      ? 'bg-accent/15 border-accent text-accent shadow-glow'
-                      : 'bg-bg-secondary/40 border-white/10 text-text-primary hover:border-accent/30'
+                      ? 'bg-blue-50/70 dark:bg-blue-950/40 border-brand text-brand ring-1 ring-brand'
+                      : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:border-slate-300'
                   }`}
                 >
                   ₹{q.toLocaleString('en-IN')}
-                </motion.button>
+                </button>
               ))}
             </div>
           </div>
