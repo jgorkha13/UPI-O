@@ -72,4 +72,14 @@ public class TransactionController {
         List<Transaction> history = transactionService.getHistory(phone);
         return ResponseEntity.ok(history);
     }
+
+    // GET /api/transactions/today-spent — get today's spending summary
+    @GetMapping("/today-spent")
+    public ResponseEntity<Map<String, Object>> getTodaySpent(
+            Authentication authentication) {
+
+        String phone = authentication.getName();
+        Map<String, Object> summary = transactionService.getTodaySummary(phone);
+        return ResponseEntity.ok(summary);
+    }
 }

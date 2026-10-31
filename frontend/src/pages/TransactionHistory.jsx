@@ -109,12 +109,23 @@ function TransactionHistory() {
   const summary = useMemo(() => {
     let spent = 0;
     let received = 0;
+    let todaySpent = 0;
+    const todayStr = new Date().toDateString();
+
     transactions.forEach((tx) => {
       const amount = Number(tx.amount) || 0;
-      if (tx.sender?.phone === userPhone) spent += amount;
-      else received += amount;
+      const isSent = tx.sender?.phone === userPhone || isRecharge(tx);
+      const isToday = tx.createdAt && new Date(tx.createdAt).toDateString() === todayStr;
+
+      if (isSent) {
+        spent += amount;
+        if (isToday) todaySpent += amount;
+      } else {
+        received += amount;
+      }
     });
-    return { spent, received, net: received - spent };
+
+    return { spent, received, todaySpent, net: received - spent };
   }, [transactions, userPhone]);
 
   const filtered = useMemo(() => {
@@ -172,24 +183,41 @@ function TransactionHistory() {
 
       <div className="px-4 mt-2 space-y-4">
         {/* Spent / Received summary */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="enterprise-card !p-4 border-danger/10 bg-danger/5">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 rounded-xl bg-danger/10 flex items-center justify-center">
-                <ArrowUpRight className="w-4 h-4 text-danger" />
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <div className="enterprise-card !p-3 sm:!p-4 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <div className="w-6 h-6 rounded-md bg-rose-50 dark:bg-rose-950/40 text-rose-600 flex items-center justify-center">
+                <ArrowUpRight className="w-3.5 h-3.5" />
               </div>
-              <span className="text-xs font-semibold text-text-secondary">Money Spent</span>
+              <span className="text-[11px] font-medium text-slate-500">Today</span>
             </div>
-            <p className="text-xl font-bold text-danger">{formatCurrency(summary.spent)}</p>
+            <p className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 font-mono">
+              {formatCurrency(summary.todaySpent)}
+            </p>
           </div>
-          <div className="enterprise-card !p-4 border-success/10 bg-success/5">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 rounded-xl bg-success/10 flex items-center justify-center">
-                <ArrowDownLeft className="w-4 h-4 text-success" />
+
+          <div className="enterprise-card !p-3 sm:!p-4 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <div className="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 flex items-center justify-center">
+                <ArrowUpRight className="w-3.5 h-3.5" />
               </div>
-              <span className="text-xs font-semibold text-text-secondary">Money Received</span>
+              <span className="text-[11px] font-medium text-slate-500">Total Out</span>
             </div>
-            <p className="text-xl font-bold text-success">{formatCurrency(summary.received)}</p>
+            <p className="text-base sm:text-lg font-bold text-slate-700 dark:text-slate-300 font-mono">
+              {formatCurrency(summary.spent)}
+            </p>
+          </div>
+
+          <div className="enterprise-card !p-3 sm:!p-4 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <div className="w-6 h-6 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 flex items-center justify-center">
+                <ArrowDownLeft className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-medium text-slate-500">Total In</span>
+            </div>
+            <p className="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+              {formatCurrency(summary.received)}
+            </p>
           </div>
         </div>
 

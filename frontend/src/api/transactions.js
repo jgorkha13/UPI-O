@@ -9,3 +9,8 @@ export const getTransactions = async () => {
   const { data } = await api.get('/api/transactions');
   return data;
 };
+
+export const getTodaySpent = async () => {
+  const { data } = await api.get('/api/transactions/today-spent');
+  return data;
+};

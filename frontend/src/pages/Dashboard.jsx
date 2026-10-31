@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useContext } from 'react';
+import { useState, useEffect, useCallback, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -7,6 +7,7 @@ import {
   ChevronRight,
   WifiOff,
   RefreshCw,
+  ArrowUpRight,
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import AppHeader from '../components/layout/AppHeader';
@@ -22,23 +23,7 @@ import { formatCurrency, formatRelativeTime } from '../utils/format';
 import { isRecharge, transactionLabel, transactionSubLabel } from '../utils/transaction';
 import { getCachedWallet, setCachedWallet } from '../utils/walletCache';
 
-function Counter({ value, duration = 500 }) {
-  const [display, setDisplay] = useState(0);
-  useEffect(() => {
-    const target = Number(value) || 0;
-    const start = performance.now();
-    const from = display;
-    const tick = (now) => {
-      const p = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - p, 3);
-      setDisplay(from + (target - from) * eased);
-      if (p < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
-  return display.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
+const CACHED_TX_KEY = 'upio_cached_transactions';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -46,7 +31,14 @@ function Dashboard() {
   const userName = localStorage.getItem('userName') || 'User';
   const userPhone = localStorage.getItem('userPhone');
   const [wallet, setWallet] = useState(() => getCachedWallet());
-  const [transactions, setTransactions] = useState([]);
+  const [allTransactions, setAllTransactions] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(CACHED_TX_KEY) || '[]');
+    } catch {
+      return [];
+    }
+  });
+  const [transactions, setTransactions] = useState(() => allTransactions.slice(0, 5));
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [hideBalance, setHideBalance] = useState(false);
@@ -72,7 +64,13 @@ function Dashboard() {
       const [w, tx] = await Promise.all([getWallet(), getTransactions()]);
       setWallet(w);
       setCachedWallet(w);
+      setAllTransactions(tx);
       setTransactions(tx.slice(0, 5));
+      try {
+        localStorage.setItem(CACHED_TX_KEY, JSON.stringify(tx));
+      } catch {
+        // quota exceeded guard
+      }
     } catch {
       const cached = getCachedWallet();
       if (cached) {
@@ -90,6 +88,35 @@ function Dashboard() {
   useEffect(() => {
     fetchData();
   }, [fetchData, walletVersion]);
+
+  // Calculate today's spending (both synced transactions + offline queued)
+  const { todaySpent, todayTxCount } = useMemo(() => {
+    const todayStr = new Date().toDateString();
+
+    let spent = 0;
+    let count = 0;
+
+    allTransactions.forEach((tx) => {
+      const isSent = tx.sender?.phone === userPhone || isRecharge(tx);
+      const isToday = tx.createdAt && new Date(tx.createdAt).toDateString() === todayStr;
+      const isCompleted = tx.status === 'COMPLETED' || !tx.status;
+      if (isSent && isToday && isCompleted) {
+        spent += Number(tx.amount || 0);
+        count += 1;
+      }
+    });
+
+    // Add locally queued offline transactions created today
+    pendingTransactions.forEach((tx) => {
+      const isToday = tx.createdAt ? new Date(tx.createdAt).toDateString() === todayStr : true;
+      if (isToday) {
+        spent += Number(tx.amount || 0);
+        count += 1;
+      }
+    });
+
+    return { todaySpent: spent, todayTxCount: count };
+  }, [allTransactions, pendingTransactions, userPhone]);
 
   const getTx = (tx) => {
     const sent = tx.sender?.phone === userPhone || isRecharge(tx);
@@ -175,35 +202,56 @@ function Dashboard() {
             </div>
           </div>
           <p className="text-3xl font-bold text-text-primary font-mono tracking-tight">
-            {hideBalance ? '₹ ••••' : <>₹ <Counter value={wallet?.balance ?? 0} /></>}
+            {hideBalance ? '₹ ••••' : formatCurrency(wallet?.balance ?? 0)}
           </p>
-          <p className="text-xs text-text-secondary mt-1">Total money in your wallet</p>
-          <div className="mt-4 pt-4 border-t space-y-3" style={{ borderColor: 'var(--color-border)' }}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold text-text-primary flex items-center gap-1.5">
-                  <WifiOff className="w-3.5 h-3.5 text-warning" />
-                  Offline spending left
-                </p>
-                <p className="text-lg font-bold text-brand mt-0.5">
-                  {hideBalance ? '₹ ••••' : formatCurrency(offlineRemaining)}
-                </p>
+          <p className="text-xs text-text-secondary mt-0.5">Available wallet balance</p>
+
+          {/* Quick Metrics: Today's Outflow + Offline Quota */}
+          <div className="grid grid-cols-2 gap-2.5 mt-4 pt-3.5 border-t border-slate-100 dark:border-slate-800">
+            <div className="bg-slate-50 dark:bg-slate-800/40 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                <ArrowUpRight className="w-3.5 h-3.5 text-rose-500" />
+                <span className="font-medium">Spent Today</span>
               </div>
-              <div className="text-right">
-                <p className="text-[10px] text-text-secondary">Offline cap</p>
-                <p className="text-sm font-semibold text-text-primary">{formatCurrency(offlineLimit)}</p>
-              </div>
+              <p className="text-base font-bold text-slate-900 dark:text-slate-100 font-mono mt-1">
+                {hideBalance ? '••••' : formatCurrency(todaySpent)}
+              </p>
+              <p className="text-[10px] text-slate-400 mt-0.5">
+                {todayTxCount} payment{todayTxCount === 1 ? '' : 's'} today
+              </p>
             </div>
-            <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+
+            <div className="bg-slate-50 dark:bg-slate-800/40 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                <WifiOff className="w-3.5 h-3.5 text-amber-500" />
+                <span className="font-medium">Offline Quota</span>
+              </div>
+              <p className="text-base font-bold text-slate-900 dark:text-slate-100 font-mono mt-1">
+                {hideBalance ? '••••' : formatCurrency(offlineRemaining)}
+              </p>
+              <p className="text-[10px] text-slate-400 mt-0.5">
+                Max {formatCurrency(offlineLimit)}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-3.5 pt-3.5 border-t space-y-2.5" style={{ borderColor: 'var(--color-border)' }}>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-slate-500">Offline reserve usage</span>
+              <span className="font-semibold text-slate-700 dark:text-slate-300">
+                {formatCurrency(offlineSpent)} of {formatCurrency(offlineLimit)}
+              </span>
+            </div>
+            <div className="h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
               <div
                 className="h-full bg-brand rounded-full transition-all"
                 style={{ width: `${offlinePercent}%` }}
               />
             </div>
             <p className="text-[10px] text-text-secondary leading-relaxed">
-              Used offline: {formatCurrency(offlineSpent)} · You can queue up to{' '}
+              You can queue up to{' '}
               <strong>{hideBalance ? '••••' : formatCurrency(Math.min(balance, offlineRemaining))}</strong>{' '}
-              per payment without internet (limited by balance & offline cap).
+              without internet connection.
             </p>
           </div>
           <p className="text-[10px] text-text-secondary mt-3 pt-3 border-t" style={{ borderColor: 'var(--color-border)' }}>

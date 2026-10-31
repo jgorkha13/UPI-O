@@ -204,4 +204,22 @@ public class TransactionService {
         return transactionRepository
                 .findBySenderOrReceiverOrderByCreatedAtDesc(user, user);
     }
+
+    // Get today's total spending summary for the user
+    public java.util.Map<String, Object> getTodaySummary(String phone) {
+        User user = userRepository.findByPhone(phone)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        java.time.LocalDateTime startOfDay = java.time.LocalDate.now().atStartOfDay();
+        BigDecimal spentToday = transactionRepository.getSpentSince(
+                user, Transaction.TransactionStatus.COMPLETED, startOfDay);
+        long countToday = transactionRepository.countSpentSince(
+                user, Transaction.TransactionStatus.COMPLETED, startOfDay);
+
+        java.util.Map<String, Object> summary = new java.util.HashMap<>();
+        summary.put("spentToday", spentToday != null ? spentToday : BigDecimal.ZERO);
+        summary.put("countToday", countToday);
+        summary.put("date", java.time.LocalDate.now().toString());
+        return summary;
+    }
 }
