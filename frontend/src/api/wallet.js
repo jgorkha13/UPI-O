@@ -9,3 +9,8 @@ export const addMoney = async (amount) => {
   const { data } = await api.post('/api/wallet/add', { amount });
   return data;
 };
+
+export const resetOfflineSpent = async () => {
+  const { data } = await api.post('/api/wallet/reset-offline');
+  return data;
+};

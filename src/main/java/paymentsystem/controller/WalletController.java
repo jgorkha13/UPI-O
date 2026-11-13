@@ -49,6 +49,25 @@ public class WalletController {
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Money added successfully");
         response.put("newBalance", wallet.getBalance());
+        response.put("offlineLimit", wallet.getOfflineLimit());
+        response.put("offlineSpent", wallet.getOfflineSpent());
+
+        return ResponseEntity.ok(response);
+    }
+
+    // POST /api/wallet/reset-offline — refill offline spending limit upon sync
+    @PostMapping("/reset-offline")
+    public ResponseEntity<Map<String, Object>> resetOfflineSpent(
+            Authentication authentication) {
+
+        String phone = authentication.getName();
+        Wallet wallet = walletService.resetOfflineSpent(phone);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Offline limit refilled successfully");
+        response.put("offlineSpent", wallet.getOfflineSpent());
+        response.put("offlineLimit", wallet.getOfflineLimit());
+        response.put("balance", wallet.getBalance());
 
         return ResponseEntity.ok(response);
     }

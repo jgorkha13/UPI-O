@@ -38,6 +38,21 @@ export const creditCachedWallet = (amount) => {
   const updated = {
     ...cached,
     balance: Number(cached.balance) + amount,
+    offlineSpent: 0, // adding money refills offline limit back to full
+    lastSyncAt: new Date().toISOString(),
+  };
+
+  setCachedWallet(updated);
+  return updated;
+};
+
+export const refillOfflineCache = () => {
+  const cached = getCachedWallet();
+  if (!cached) return null;
+
+  const updated = {
+    ...cached,
+    offlineSpent: 0,
     lastSyncAt: new Date().toISOString(),
   };
 

@@ -1,9 +1,9 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
-import { getWallet } from '../api/wallet';
+import { getWallet, resetOfflineSpent } from '../api/wallet';
 import { getAllOfflineTransactions } from '../services/offlineService';
 import { syncOfflineTransactions } from '../services/syncService';
-import { getCachedWallet, setCachedWallet } from '../utils/walletCache';
+import { getCachedWallet, setCachedWallet, refillOfflineCache } from '../utils/walletCache';
 
 export const OfflineContext = createContext();
 
@@ -65,8 +65,15 @@ export const OfflineProvider = ({ children }) => {
 
       await loadPending();
       if (synced.length > 0) {
+        // Refill offline limit back to full upon settling pending offline queue
+        try {
+          await resetOfflineSpent();
+          refillOfflineCache();
+        } catch {
+          // ignore if offline reset endpoint fails
+        }
         await refreshWallet();
-        toast.success(`${synced.length} offline transaction(s) synced`);
+        toast.success(`${synced.length} offline payment(s) synced & ₹2,000 limit refilled!`);
       }
       if (dropped.length > 0) {
         await refreshWallet();

@@ -41,11 +41,21 @@ public class WalletService {
                 .orElseThrow(() -> new RuntimeException("Wallet not found"));
     }
 
-    // Add money to wallet
+    // Add money to wallet — also refills the offline limit back to full
     @Transactional
     public Wallet addMoney(String phone, BigDecimal amount) {
         Wallet wallet = getWalletByPhone(phone);
         wallet.setBalance(wallet.getBalance().add(amount));
+        wallet.setOfflineSpent(BigDecimal.ZERO); // refill ₹2,000 offline limit
+        wallet.setLastSyncAt(java.time.LocalDateTime.now());
+        return walletRepository.save(wallet);
+    }
+
+    // Reset offline spent (refills offline limit back to full upon sync)
+    @Transactional
+    public Wallet resetOfflineSpent(String phone) {
+        Wallet wallet = getWalletByPhone(phone);
+        wallet.setOfflineSpent(BigDecimal.ZERO);
         wallet.setLastSyncAt(java.time.LocalDateTime.now());
         return walletRepository.save(wallet);
     }
