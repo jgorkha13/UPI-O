@@ -36,7 +36,8 @@ public class Wallet {
 
     // Optimistic locking — prevents concurrent double-debit / double-credit
     @Version
-    private Long version;
+    @Column(columnDefinition = "BIGINT DEFAULT 0")
+    private Long version = 0L;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;
