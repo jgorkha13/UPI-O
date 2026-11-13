@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, Search, Loader2, User } from 'lucide-react';
 import { toast } from 'react-toastify';
@@ -56,16 +56,21 @@ function StepBar({ step }) {
 
 function SendMoney() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isOnline, setPendingTransactions, refreshWallet } = useContext(OfflineContext);
-  const [phone, setPhone] = useState('');
-  const [amount, setAmount] = useState('');
+  const initialPhone = location.state?.phone || '';
+  const initialAmount = location.state?.amount || '';
+  const initialName = location.state?.name || '';
+
+  const [phone, setPhone] = useState(initialPhone);
+  const [amount, setAmount] = useState(initialAmount);
   const [note, setNote] = useState('');
   const [balance, setBalance] = useState(() => getCachedWallet()?.balance ?? 0);
   const [offlineLimit, setOfflineLimit] = useState(() => getCachedWallet()?.offlineLimit ?? 2000);
   const [offlineSpent, setOfflineSpent] = useState(() => getCachedWallet()?.offlineSpent ?? 0);
   const [recent, setRecent] = useState(() => getCachedContacts().slice(0, 5));
   const [searchQuery, setSearchQuery] = useState('');
-  const [recipient, setRecipient] = useState(null);
+  const [recipient, setRecipient] = useState(() => initialName && initialPhone ? { name: initialName, phone: initialPhone } : null);
   const [lookupError, setLookupError] = useState('');
   const [lookupWarning, setLookupWarning] = useState('');
   const [lookingUp, setLookingUp] = useState(false);
