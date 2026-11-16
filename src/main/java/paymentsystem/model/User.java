@@ -1,5 +1,6 @@
 package paymentsystem.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String phone;
 
+    @JsonIgnore
     @Column(nullable = false)
     private String password;
 

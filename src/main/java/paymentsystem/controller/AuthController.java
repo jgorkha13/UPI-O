@@ -33,6 +33,7 @@ public class AuthController {
         response.put("message", "User registered successfully");
         response.put("userId", user.getId().toString());
         response.put("name", user.getName());
+        response.put("token", jwtUtil.generateToken(user.getPhone()));
 
         return ResponseEntity.ok(response);
     }

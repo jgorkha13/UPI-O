@@ -34,3 +34,15 @@ build/
 
 ### VS Code ###
 .vscode/
+.neon
+node_modules/
+.env
+.DS_Store
+*/.DS_Store
+.agents/
+skills-lock.json
+neon.ts
+package.json
+package-lock.json
+src/main/resources/static/reflekt-ai/
+

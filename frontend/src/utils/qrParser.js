@@ -82,3 +82,4 @@ export const parseUpiQr = (rawText) => {
     raw: text,
   };
 };
+

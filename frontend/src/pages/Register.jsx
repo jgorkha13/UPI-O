@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, ChevronDown, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, ChevronDown, AlertCircle, Check, X } from 'lucide-react';
 import AuthHero from '../components/layout/AuthHero';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -13,13 +13,40 @@ import { getApiErrorMessage } from '../utils/errors';
 
 const COUNTRY = { code: '+91', flag: '🇮🇳' };
 
+const PASSWORD_RULES = [
+  { id: 'length', label: 'At least 8 characters', test: (v) => v.length >= 8 },
+  { id: 'upper', label: 'One uppercase letter (A–Z)', test: (v) => /[A-Z]/.test(v) },
+  { id: 'lower', label: 'One lowercase letter (a–z)', test: (v) => /[a-z]/.test(v) },
+  { id: 'number', label: 'One number (0–9)', test: (v) => /\d/.test(v) },
+  { id: 'special', label: 'One special character (!@#$%^&*)', test: (v) => /[^A-Za-z0-9]/.test(v) },
+];
+
+const isStrongPassword = (value) => PASSWORD_RULES.every((rule) => rule.test(value));
+
+function PasswordRules({ password }) {
+  return (
+    <ul className="mt-2 space-y-1.5">
+      {PASSWORD_RULES.map((rule) => {
+        const met = rule.test(password);
+        return (
+          <li
+            key={rule.id}
+            className={`flex items-center gap-2 text-xs ${met ? 'text-success' : 'text-text-secondary'}`}
+          >
+            {met ? <Check className="w-3.5 h-3.5 shrink-0" /> : <X className="w-3.5 h-3.5 shrink-0 opacity-50" />}
+            {rule.label}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 function Register() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [fadeOut, setFadeOut] = useState(false);
   const [bannerError, setBannerError] = useState('');
   const [shake, setShake] = useState(false);
 
@@ -40,13 +67,13 @@ function Register() {
   });
 
   const { ref: nameRef, ...nameField } = register('name', {
-    required: 'Name is required',
-    minLength: { value: 2, message: 'At least 2 characters' },
+    required: 'Full name is required',
+    minLength: { value: 2, message: 'Enter your full name' },
   });
 
   const { ref: passwordRef, ...passwordField } = register('password', {
     required: 'Password is required',
-    minLength: { value: 6, message: 'Minimum 6 characters' },
+    validate: (v) => isStrongPassword(v) || 'Password does not meet the requirements',
   });
 
   const { ref: confirmRef, ...confirmField } = register('confirmPassword', {
@@ -61,19 +88,23 @@ function Register() {
 
   const nameValid = name.trim().length >= 2;
   const phoneValid = /^[6-9]\d{9}$/.test(phone);
-  const passwordValid = password.length >= 6;
+  const passwordValid = isStrongPassword(password);
   const confirmValid = confirmPassword.length > 0 && confirmPassword === password;
 
   const onSubmit = async (data) => {
     setBannerError('');
     setLoading(true);
     try {
-      await registerUser(data.name.trim(), data.phone, data.password);
-      setSuccess(true);
-      setTimeout(() => {
-        setFadeOut(true);
-        setTimeout(() => navigate('/login', { state: { registered: true, name: data.name.trim() } }), 400);
-      }, 1200);
+      const result = await registerUser(data.name.trim(), data.phone, data.password);
+      if (result.token) {
+        localStorage.setItem('token', result.token);
+        localStorage.setItem('userName', result.name);
+        localStorage.setItem('userId', result.userId);
+        localStorage.setItem('userPhone', data.phone);
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+      navigate('/login', { replace: true, state: { registered: true, name: data.name.trim() } });
     } catch (err) {
       setShake(true);
       setTimeout(() => setShake(false), 400);
@@ -88,11 +119,7 @@ function Register() {
       <AuthHero />
 
       <div className="flex-1 flex items-center justify-center p-6 sm:p-8">
-        <motion.div
-          animate={{ opacity: fadeOut ? 0 : 1, y: fadeOut ? -12 : 0 }}
-          transition={{ duration: 0.4 }}
-          className={`w-full max-w-[420px] ${shake ? 'animate-shake' : ''}`}
-        >
+        <div className={`w-full max-w-[420px] ${shake ? 'animate-shake' : ''}`}>
           <div className="lg:hidden mb-8 flex justify-center">
             <Logo size="lg" />
           </div>
@@ -118,24 +145,13 @@ function Register() {
               </motion.div>
             )}
 
-            {success && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="mb-6 p-4 rounded-lg bg-success/10 border border-success/30 text-sm text-success text-center"
-              >
-                Account created! Redirecting to login...
-              </motion.div>
-            )}
-
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <Input
                 label="Full Name"
                 placeholder="Your full name"
-                helpText="At least 2 characters"
                 valid={nameValid}
                 touched={touchedFields.name || name.length > 0}
-                error={errors.name?.message || (name.length > 0 && !nameValid ? 'Name too short' : '')}
+                error={errors.name?.message || (name.length > 0 && !nameValid ? 'Enter your full name' : '')}
                 ref={nameRef}
                 {...nameField}
               />
@@ -175,30 +191,28 @@ function Register() {
                 )}
               </div>
 
-              <Input
-                label="Password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Minimum 6 characters"
-                helpText="At least 6 characters"
-                valid={passwordValid}
-                touched={touchedFields.password || password.length > 0}
-                error={
-                  errors.password?.message ||
-                  (password.length > 0 && !passwordValid ? 'Too short' : '')
-                }
-                rightIcon={
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="text-text-secondary hover:text-accent transition-colors duration-200"
-                    tabIndex={-1}
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                }
-                ref={passwordRef}
-                {...passwordField}
-              />
+              <div>
+                <Input
+                  label="Password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Create a strong password"
+                  valid={passwordValid}
+                  touched={touchedFields.password || password.length > 0}
+                  rightIcon={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-text-secondary hover:text-accent transition-colors duration-200"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  }
+                  ref={passwordRef}
+                  {...passwordField}
+                />
+                <PasswordRules password={password} />
+              </div>
 
               <Input
                 label="Confirm Password"
@@ -225,7 +239,7 @@ function Register() {
               />
 
               <div className="pt-2">
-                <Button type="submit" loading={loading} success={success} disabled={success}>
+                <Button type="submit" loading={loading}>
                   Create Account
                 </Button>
               </div>
@@ -241,7 +255,7 @@ function Register() {
               </Link>
             </p>
           </div>
-        </motion.div>
+        </div>
       </div>
     </PageTransition>
   );

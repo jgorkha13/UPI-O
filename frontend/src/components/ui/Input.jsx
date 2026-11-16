@@ -12,6 +12,9 @@ const FieldFeedback = ({ valid, show, helpText, errorText }) => {
       </p>
     );
   }
+  if (!errorText) {
+    return helpText ? <p className="text-xs text-text-secondary mt-1.5">{helpText}</p> : null;
+  }
   return (
     <p className="text-xs text-danger mt-1.5 flex items-center gap-1">
       <X className="w-3 h-3" /> {errorText}

@@ -19,7 +19,7 @@ const Button = forwardRef(
     >
       {loading ? (
         <>
-          <Loader2 className="w-5 h-5 animate-spin-slow" />
+          <Loader2 className="w-5 h-5 animate-spin" />
           <span>{children}</span>
         </>
       ) : success ? (

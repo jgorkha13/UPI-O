@@ -19,8 +19,6 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [fadeOut, setFadeOut] = useState(false);
   const [shake, setShake] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm({
@@ -45,11 +43,7 @@ function Login() {
       if (rememberMe) localStorage.setItem('rememberPhone', data.phone);
       else localStorage.removeItem('rememberPhone');
 
-      setSuccess(true);
-      setTimeout(() => {
-        setFadeOut(true);
-        setTimeout(() => navigate('/dashboard'), 400);
-      }, 700);
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       setShake(true);
       setTimeout(() => setShake(false), 400);
@@ -64,11 +58,7 @@ function Login() {
       <AuthHero />
 
       <div className="flex-1 flex items-center justify-center p-6 sm:p-8">
-        <motion.div
-          animate={{ opacity: fadeOut ? 0 : 1, y: fadeOut ? -12 : 0 }}
-          transition={{ duration: 0.4 }}
-          className={`w-full max-w-[420px] ${shake ? 'animate-shake' : ''}`}
-        >
+        <motion.div className={`w-full max-w-[420px] ${shake ? 'animate-shake' : ''}`}>
           <div className="lg:hidden mb-8 flex justify-center">
             <Logo size="lg" />
           </div>
@@ -76,10 +66,10 @@ function Login() {
           <div className="enterprise-card animate-fade-in">
             <div className="mb-8">
               <h1 className="text-[28px] font-bold text-text-primary tracking-heading">
-                Welcome Back
+                Sign in to UPI-O
               </h1>
               <p className="text-sm text-text-secondary mt-2">
-                Enter your details to continue
+                Fast, secure payments — online or offline
               </p>
             </div>
 
@@ -154,7 +144,7 @@ function Login() {
                 </button>
               </div>
 
-              <Button type="submit" loading={loading} success={success} className="!opacity-100">
+              <Button type="submit" loading={loading} className="!opacity-100">
                 Login
               </Button>
             </form>
